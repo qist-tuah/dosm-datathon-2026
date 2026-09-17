@@ -131,11 +131,17 @@ div[data-testid="stMetricValue"] {
     font-weight: 700;
     margin-bottom: 3px;
     color: #1B3A4B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .highlight-value {
     font-size: 0.98rem;
     font-weight: 700;
     color: #0E3A5C;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .highlight-sub {
     font-size: 0.78rem;
@@ -441,12 +447,12 @@ def render_highlight_grid(items):
 def highlight_card(col, emoji, title, name, value_text, border_color=None):
     with col:
         if name:
-            body = f'<div class="highlight-value">{name}</div><div class="highlight-sub">{value_text}</div>'
+            body = f'<div class="highlight-value" title="{name}">{name}</div><div class="highlight-sub">{value_text}</div>'
         else:
             body = '<div class="highlight-sub">Not enough history yet</div>'
         st.markdown(
             f'<div class="highlight-card">'
-            f'<div class="highlight-title">{emoji} {title}</div>{body}</div>',
+            f'<div class="highlight-title" title="{emoji} {title}">{emoji} {title}</div>{body}</div>',
             unsafe_allow_html=True,
         )
 
