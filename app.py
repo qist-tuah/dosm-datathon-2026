@@ -1204,32 +1204,37 @@ elif page == "Trends & Analysis":
 
     with col_heat:
         with st.container(border=True, key="risk_heatmap_box"):
-            st.markdown('<div class="card-heading">Pressure/Risk Heatmap</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-heading">Seasonal Pattern</div>', unsafe_allow_html=True)
             if layer_choice == "Land Pressure":
-                heat_source = land_df[land_df["is_forecast"] == False]
-                heat_score, heat_group = "pressure_score", "destination"
+                seasonal_source = land_df[land_df["is_forecast"] == False][["month", "pressure_score"]].rename(columns={"pressure_score": "score"})
             elif layer_choice == "Marine Risk":
-                heat_source = marine_df
-                heat_score, heat_group = "risk_score", "marine_park"
+                seasonal_source = marine_df[["month", "risk_score"]].rename(columns={"risk_score": "score"})
             else:
-                heat_source = pd.concat([
-                    land_df[land_df["is_forecast"] == False].rename(columns={"destination": "name", "pressure_score": "score"})[["name", "month", "score"]],
-                    marine_df.rename(columns={"marine_park": "name", "risk_score": "score"})[["name", "month", "score"]],
-                ], ignore_index=True)
-                heat_score, heat_group = "score", "name"
+                land_s = land_df[land_df["is_forecast"] == False][["month", "pressure_score"]].rename(columns={"pressure_score": "score"})
+                marine_s = marine_df[["month", "risk_score"]].rename(columns={"risk_score": "score"})
+                seasonal_source = pd.concat([land_s, marine_s], ignore_index=True)
 
-            heatmap = (
-                alt.Chart(heat_source)
-                .mark_rect()
+            seasonal_source = seasonal_source.copy()
+            seasonal_source["month_of_year"] = seasonal_source["month"].str.slice(5, 7)
+            month_names = {
+                "01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr", "05": "May", "06": "Jun",
+                "07": "Jul", "08": "Aug", "09": "Sep", "10": "Oct", "11": "Nov", "12": "Dec",
+            }
+            seasonal_source["month_name"] = seasonal_source["month_of_year"].map(month_names)
+            seasonal_avg = seasonal_source.groupby(["month_of_year", "month_name"])["score"].mean().reset_index()
+
+            month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            seasonal_chart = (
+                alt.Chart(seasonal_avg)
+                .mark_bar(color="#1C7293")
                 .encode(
-                    x=alt.X("month:N", title="Month"),
-                    y=alt.Y(f"{heat_group}:N", title=None),
-                    color=alt.Color(f"{heat_score}:Q", scale=alt.Scale(scheme="yelloworangered"), title="Score"),
-                    tooltip=[heat_group, "month", heat_score],
+                    x=alt.X("month_name:N", title="Month", sort=month_order),
+                    y=alt.Y("score:Q", title="Average Score"),
+                    tooltip=["month_name", alt.Tooltip("score:Q", format=".1f")],
                 )
                 .properties(height=190)
             )
-            st.altair_chart(heatmap, use_container_width=True)
+            st.altair_chart(seasonal_chart, use_container_width=True)
 
 elif page == "Location Detail":
     detail = st.session_state.selected_detail
