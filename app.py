@@ -1205,13 +1205,10 @@ elif page == "Trends & Analysis":
     with col_heat:
         with st.container(border=True, key="risk_heatmap_box"):
             st.markdown(
-                '<div class="card-heading">Seasonal Pattern '
-                '<span title="Average pressure/risk score by calendar month (Jan-Dec), combining all years of data. '
-                'Reveals which months tend to see higher tourism strain, regardless of which year it was." '
-                'style="cursor:help; font-size:0.7rem; color:#4A6572; border:1px solid #4A6572; '
-                'border-radius:50%; width:14px; height:14px; display:inline-flex; align-items:center; '
-                'justify-content:center; vertical-align:middle;">?</span></div>',
+                '<div class="card-heading">Seasonal Pattern</div>',
                 unsafe_allow_html=True,
+                help="Average pressure/risk score by calendar month (Jan-Dec), combining all years of data. "
+                     "Reveals which months tend to see higher tourism strain, regardless of which year it was.",
             )
             if layer_choice == "Land Pressure":
                 seasonal_source = land_df[land_df["is_forecast"] == False][["month", "pressure_score"]].rename(columns={"pressure_score": "score"})
