@@ -714,12 +714,12 @@ with st.sidebar:
         st.session_state.active_page = nav_choice
         st.session_state.selected_detail = None
 
-    st.divider()
     if elevated_count == 0:
         st.success("✅ All Low")
 
     st.divider()
     with st.expander("ℹ️ About this dashboard"):
+        st.markdown("**Built by Bits & Bytes**")
         st.caption(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         st.caption(
             "Data sources: real Google Reviews (translated), NOAA Coral Reef "
@@ -744,11 +744,11 @@ else:
     scope_elevated_count = elevated_count
 
 with st.container(key="header_row"):
-    title_col, warn_col = st.columns([11, 1])
+    title_col, warn_col = st.columns([11, 1], vertical_alignment="center")
     with title_col:
         st.title("Sustainable Tourism Pressure & Risk Monitoring System")
     with warn_col:
-        if scope_elevated_count > 0:
+        if page == "Overview" and scope_elevated_count > 0:
             if st.button("⚠️", key="warn_btn", help=f"{scope_elevated_count} destination(s) elevated - click for details"):
                 st.session_state.show_warning_panel = not st.session_state.show_warning_panel
         else:
@@ -761,7 +761,8 @@ if page == "Overview":
         kpi_items = [
             ("Land Destinations Monitored", len(land_latest_all), None),
             ("Highest Pressure", f"{top['pressure_score']:.1f} / 100",
-             f"{top['destination']} - score is 0-100, combining review sentiment + visitor growth"),
+             f"{top['destination']} - Pressure (0-100) shows how much strain tourism is putting on this "
+             f"destination: 50% negative review sentiment + 50% visitor growth."),
             ("At Medium/High Risk", len(elevated_land),
              "Count of land destinations currently above the Low risk threshold (score >= 33)"),
         ]
@@ -779,7 +780,9 @@ if page == "Overview":
         top_marine = marine_latest_all.sort_values("risk_score", ascending=False).iloc[0]
         kpi_items = [
             ("Destinations Monitored", len(combined_latest), None),
-            ("Highest Land Pressure", f"{top_land['pressure_score']:.1f} / 100", top_land["destination"]),
+            ("Highest Land Pressure", f"{top_land['pressure_score']:.1f} / 100",
+             f"{top_land['destination']} - Pressure (0-100) shows how much strain tourism is putting on this "
+             f"destination: 50% negative review sentiment + 50% visitor growth."),
             ("Highest Marine Risk", f"{top_marine['risk_score']:.1f} / 100", top_marine["marine_park"]),
             ("At Medium/High Risk", elevated_count,
              "Combined count across land and marine, currently above the Low threshold (score >= 33)"),
